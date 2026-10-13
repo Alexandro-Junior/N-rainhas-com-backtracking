@@ -21,23 +21,58 @@
 > ⚠️ **Aviso:** O código deve rodar exclusivamente em ambiente online, sem necessidade de instalação local.
 
 * **Ambiente Online Utilizado:** SWISH (swish.swi-prolog.org)
-* **Permalink:** _[A preencher — testar em aba anônima antes de enviar!]_
+* **Permalink:** https://swish.swi-prolog.org/p/nrainhas-grupo04.pl
 
 ### Instruções de Teste (Entrada e Saída)
 
-_[A preencher: como abrir o permalink e executar as consultas.]_
+1. Abra o permalink acima. Não precisa de login nem de instalação.
+2. O código aparece no painel da esquerda. No canto inferior direito, digite a consulta na caixa `?-` (ou escolha uma em **Examples**) e clique em **Run!**.
+3. Para ver **outra solução**, clique em **Next**: o Prolog volta (backtracking) e procura a próxima.
+
+| Consulta | O que faz |
+|---|---|
+| `rainhas(N, Qs).` | Uma solução para N rainhas (versão com poda) |
+| `rainhas_v1(N, Qs).` | Uma solução pela versão gerar e testar |
+| `resolver(N).` | Resolve e desenha o tabuleiro |
+| `todas_solucoes(N, S).` | Lista todas as soluções |
+| `contar_solucoes(N, Total).` | Conta as soluções |
 
 **Entrada de Exemplo:**
 
 ```text
-[A preencher com a consulta copiada do SWISH]
+?- rainhas(4, Qs).
+?- todas_solucoes(4, S).
+?- resolver(8).
+?- contar_solucoes(8, Total).
 ```
 
 **Saída Esperada:**
 
 ```text
-[A preencher com a saída copiada do SWISH]
+?- rainhas(4, Qs).
+Qs = [3, 1, 4, 2]
+   (clicando em Next: Qs = [2, 4, 1, 3])
+
+?- todas_solucoes(4, S).
+S = [[3, 1, 4, 2], [2, 4, 1, 3]]
+
+?- resolver(8).
+Solução: [4,2,7,3,6,8,5,1]
+. . . . . . . Q
+. Q . . . . . .
+. . . Q . . . .
+Q . . . . . . .
+. . . . . . Q .
+. . . . Q . . .
+. . Q . . . . .
+. . . . . Q . .
+true
+
+?- contar_solucoes(8, Total).
+Total = 92
 ```
+
+> Em `Qs = [3, 1, 4, 2]`, cada posição é uma **coluna** e cada valor é a **linha** da rainha: coluna 1 → linha 3, coluna 2 → linha 1, e assim por diante.
 
 ## Relatório Técnico
 
