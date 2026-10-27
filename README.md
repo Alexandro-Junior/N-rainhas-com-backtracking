@@ -18,7 +18,7 @@
 
 ## Execução do Código
 
-> ⚠️ **Aviso:** O código deve rodar exclusivamente em ambiente online, sem necessidade de instalação local.
+
 
 * **Ambiente Online Utilizado:** SWISH (swish.swi-prolog.org)
 * **Permalink:** https://swish.swi-prolog.org/p/nrainhas-grupo04.pl
