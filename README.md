@@ -37,7 +37,8 @@
 | `mostrar_todas(N).` | Todas as soluções em miniatura, lado a lado (N até 8) |
 | `explicar(N).` | Mostra o backtracking passo a passo (N até 6) |
 | `comparar(N).` | Tempo das três versões do algoritmo para o mesmo N |
-| `contar_solucoes(N, Total).` | Quantas soluções existem |
+| `testar.` | Roda os 24 testes automáticos e mostra cada resultado assim que ele sai |
+| `contar_solucoes(N, Total).` | Quantas soluções existem (N até 12) |
 | `rainhas(N, Qs).` | A solução como lista (versão principal, v3) |
 | `rainhas_v1(N, Qs).` / `rainhas_v2(N, Qs).` | As versões mais simples, para comparação |
 | `imprimir_tabuleiro(Qs).` | Desenho da solução em texto |
@@ -51,6 +52,7 @@
 ?- explicar(4).
 ?- resolver(100).
 ?- comparar(20).
+?- testar.
 ```
 
 **Saída Esperada:**
@@ -107,6 +109,43 @@ Versão                         Tempo
 v1 · gerar e testar            não roda (lenta demais para N > 10)
 v2 · backtracking com poda     1.5936 s
 v3 · verificação adiante       0.0033 s
+
+?- testar.
+♛ Testes automáticos
+24 testes. Cada resultado é comparado com o valor esperado (✔ igual, ✗ diferente).
+1. O conferidor valida/1 reconhece tabuleiros errados
+✔ valida([2,4,1,3]), solução correta → aceita · 0.000 s
+✔ valida([1,2,3,4]), todas na mesma diagonal → rejeita · 0.000 s
+✔ valida([2,4,1,1]), duas na mesma linha → rejeita · 0.000 s
+2. Total de soluções igual ao conhecido (N = 1 a 10)
+✔ contar_solucoes(1, T) → 1 · 0.000 s
+✔ contar_solucoes(2, T) → 0 · 0.000 s
+✔ contar_solucoes(3, T) → 0 · 0.000 s
+✔ contar_solucoes(4, T) → 2 · 0.000 s
+✔ contar_solucoes(5, T) → 10 · 0.001 s
+✔ contar_solucoes(6, T) → 4 · 0.001 s
+✔ contar_solucoes(7, T) → 40 · 0.003 s
+✔ contar_solucoes(8, T) → 92 · 0.012 s
+✔ contar_solucoes(9, T) → 352 · 0.043 s
+✔ contar_solucoes(10, T) → 724 · 0.161 s
+3. As três versões chegam ao mesmo total
+✔ totais da v1, v2 e v3 para N = 4 → [2,2,2] · 0.000 s
+✔ totais da v1, v2 e v3 para N = 6 → [4,4,4] · 0.002 s
+✔ totais da v1, v2 e v3 para N = 8 → [92,92,92] · 0.071 s
+4. As respostas do Next: válidas e sem repetição
+✔ soluções de rainhas(8, Qs) reprovadas por valida/1 → 0 · 0.013 s
+✔ soluções repetidas entre as respostas de rainhas(8, Qs) → 0 · 0.015 s
+5. Tabuleiros grandes (v3)
+✔ valida/1 na 1ª solução de rainhas(20, Qs) → aceita · 0.004 s
+✔ valida/1 na 1ª solução de rainhas(50, Qs) → aceita · 0.034 s
+✔ valida/1 na 1ª solução de rainhas(100, Qs) → aceita · 0.287 s
+✔ valida/1 na 1ª solução de rainhas(200, Qs) → aceita · 2.556 s
+6. Mesma 1ª solução das versões em C e Java
+✔ 1ª solução de rainhas_v2(4, Qs) → [2,4,1,3] · 0.000 s
+✔ 1ª solução de rainhas_v2(8, Qs) → [1,5,8,6,3,7,2,4] · 0.000 s
+♛ Resultado dos testes
+✔ Todos os 24 testes passaram.
+Tempo total: 3.21 s
 ```
 
 > Em `Qs = [3, 1, 4, 2]`, cada posição é uma **coluna** e cada valor é a **linha** da rainha: coluna 1 → linha 3, coluna 2 → linha 1, e assim por diante. Os tempos variam um pouco a cada execução.
@@ -135,6 +174,7 @@ Nas três, **não há pilha, laço nem "desfazer jogada" escritos à mão**. Qua
 Cada solução exibida é conferida de forma independente por `valida/1`: uma rainha por linha e nenhuma diagonal repetida.
 
 **Testes (no SWISH, em 27/10/2026):**
+- O comando `testar.` roda **24 testes automáticos** direto no SWISH e mostra cada resultado assim que ele sai. Ele confere o próprio conferidor (`valida/1`), o total de soluções de N = 1 a 10, que as três versões concordam, que as respostas do **Next** são válidas e não se repetem, tabuleiros de 20 a 200 rainhas e a mesma 1ª solução das versões em C e Java. Os testes são uma base de fatos (`teste/4`), e `resultado/2` calcula o valor obtido em cada caso.
 - As três versões dão o mesmo número de soluções de N = 1 a 9: 1, 0, 0, 2, 10, 4, 40, 92 e 352. A v3 também acerta N = 10 (724) e N = 11 (2680).
 - A v3 achou uma solução válida para **todo N de 1 a 250** (N = 2 e N = 3 não têm solução). Tempo médio de 1,3 s, pior caso 5,6 s (N = 248). Também foram testados N = 300 (9,4 s) e N = 400 (24,5 s).
 
