@@ -182,36 +182,47 @@ Cada solução exibida é conferida de forma independente por `valida/1`: uma ra
 
 ### Análise Comparativa
 
+A comparação usa o mesmo algoritmo da v2 reescrito em C e Java (pasta [`comparacao/`](comparacao/)). As três versões dão o mesmo total de soluções e a mesma primeira solução, então as diferenças vêm do paradigma, e não do algoritmo.
+
 #### 1. Sintaxe
 
-_[A preencher]_
+Em Prolog, o programa é uma sequência de cláusulas `Cabeça :- Corpo`. Não há declaração de tipos, chaves, atribuição nem laços: a vírgula significa "e", e a repetição é feita por recursão. Cada caso é uma cláusula escolhida por casamento de padrões: `nao_ataca(_, [], _)` trata a lista vazia, e `nao_ataca(Q, [Q1|Qs], D)` separa a primeira rainha do resto. O núcleo da v2 tem **15 linhas em Prolog, 45 em C e 39 em Java**. As outras duas precisam de vetores de marcação, índices e funções para marcar e desmarcar casas.
 
 #### 2. Semântica
 
-_[A preencher]_
+- **Unificação no lugar da atribuição.** Uma variável ligada não muda mais naquele ramo da prova, e o retrocesso desfaz as ligações sozinho, por isso não existe "desmarcar".
+- **Controle implícito.** É a falha de um objetivo que faz a busca voltar.
+- **Avaliação.** É estrita, mas as soluções saem sob demanda (**Next**, `findall/3`), como um gerador com `yield` em Python. Em C e Java foi preciso uma segunda função (`contar`/`coletar`).
+- **Relações, não funções.** `rainhas_v2(4, Qs)` gera uma solução e `rainhas_v2(4, [2,4,1,3])` confere uma.
+- **Tipos e escopo.** A tipagem é dinâmica, enquanto C e Java têm tipagem estática. O escopo de uma variável é a cláusula, e não há estado global.
 
 #### 3. Gerenciamento de Memória
 
-_[A preencher]_
+- **C:** `malloc`/`calloc` e `free` manuais em `criar` e `destruir`, com risco de vazamento ou de uso após liberar.
+- **Java:** `new` e o coletor de lixo da JVM. Como o vetor é reaproveitado, cada solução guardada precisa ser copiada com `clone()`.
+- **Prolog:** nenhuma alocação explícita. Os termos ficam na pilha global, e a trilha (*trail*) registra as ligações a desfazer. Ao retroceder, o SWI-Prolog descarta de uma vez tudo o que foi criado depois do ponto de escolha, e o coletor de lixo recolhe o resto. A v3 cria listas novas de domínios a cada passo, o que gasta mais memória, mas é isso que permite restaurá-los sem nenhum código extra.
 
 #### 4. Trade-offs
 
-_[A preencher]_
+Com o mesmo algoritmo, C e Java são cerca de 100 vezes mais rápidos. Para N = 28, levam 0,30 s (C) e 0,34 s (Java), contra 49,5 s do Prolog v2. Mas nas três linguagens o tempo cresce de forma exponencial: o C não terminou N = 100 em 60 s, e a v3 em Prolog resolve N = 100 em 0,3 s. Quem resolve N grande é o algoritmo, e a v3 só foi simples de escrever porque o Prolog restaura os domínios ao retroceder.
+
+- **Vantagens do Prolog:** backtracking nativo, sem código para desfazer jogadas; código curto e próximo da definição do problema; todas as soluções sem esforço extra; predicados que geram e conferem.
+- **Desvantagens:** desempenho e consumo de memória; eficiência dependente da ordem dos objetivos (`contar_solucoes(50, T)` não terminaria); depuração mais difícil; erros de tipo só na execução; pouco controle de baixo nível.
 
 ### Resumo da Análise Comparativa
 
-O detalhamento completo está no relatório [`Paradigma04.pdf`](Paradigma04.pdf).
+O detalhamento completo está no relatório [`Paradigma04.pdf`](Paradigma04.pdf). A fonte editável fica em [`relatorio/Paradigma04.docx`](relatorio/Paradigma04.docx).
 
-* **Sintaxe:** _[A preencher]_
-* **Semântica:** _[A preencher]_
-* **Gerenciamento de Memória:** _[A preencher]_
-* **Trade-offs:** _[A preencher]_
+* **Sintaxe:** cláusulas declarativas e recursão no lugar de laços, índices e `if`. O núcleo da v2 tem 15 linhas em Prolog, contra 45 em C e 39 em Java.
+* **Semântica:** unificação em vez de atribuição, retrocesso automático, soluções sob demanda e predicados que funcionam nos dois sentidos. Tipagem dinâmica e escopo restrito à cláusula.
+* **Gerenciamento de Memória:** nenhum `malloc`/`free`. As pilhas da máquina Prolog são recuperadas no retrocesso, e o coletor de lixo faz o resto. Em C a memória é manual, e em Java fica com o coletor da JVM.
+* **Trade-offs:** C e Java são cerca de 100 vezes mais rápidos com o mesmo algoritmo. O Prolog torna trivial a parte difícil, que é retroceder corretamente, e deixa simples escrever a v3, que resolve 100 rainhas em 0,3 s.
 
 ## Log de Uso de Inteligência Artificial (IA)
 
 O registro detalhado, com data, está em [`log-ia.md`](log-ia.md).
 
-* **O que foi pedido à IA:** análise do enunciado e plano do projeto; escrita do código Prolog em três versões (gerar e testar, poda, verificação adiante) e da apresentação visual no SWISH; versões em C e Java para a comparação; testes de N=1 a 200.
+* **O que foi pedido à IA:** análise do enunciado e plano do projeto; escrita do código Prolog em três versões (gerar e testar, poda, verificação adiante) e da apresentação visual no SWISH; versões em C e Java para a comparação; testes de N=1 a 200; comando `testar`; rascunho do relatório `Paradigma04.pdf` e prints do SWISH.
 * **Qual IA foi utilizada:** Anthropic Claude Opus 5.5 (Claude Code).
-* **O que foi aproveitado:** `src/nrainhas.pl`, `comparacao/nrainhas.c`, `comparacao/NRainhas.java`, o `PLANO.md` e a estrutura deste README.
+* **O que foi aproveitado:** `src/nrainhas.pl`, `comparacao/nrainhas.c`, `comparacao/NRainhas.java`, o `PLANO.md`, a estrutura deste README, o texto-base do relatório e as figuras de `docs/prints/`.
 * **O que foi reescrito/entendido pelo grupo:** _[A preencher pelo grupo]_

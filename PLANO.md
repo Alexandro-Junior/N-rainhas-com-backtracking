@@ -70,6 +70,8 @@
 ## 4. Etapas e cronograma
 
 > **Situação em 27/10/2026:** etapas 3, 4 e 6 prontas, com uma v3 a mais (verificação adiante, que resolve N = 100+) e as versões em C **e** Java em `comparacao/`. A etapa 5 está feita, mas o permalink do SWISH precisa ser salvo de novo com o código novo. A etapa 7 (tabela de testes) está quase pronta: os dados estão no PR. Próximo passo: relatório (etapas 8 e 9).
+>
+> **Atualização 27/10/2026:** o rascunho do relatório está pronto: `relatorio/Paradigma04.docx`, que é a fonte editável no Word, e `Paradigma04.pdf`, na raiz. Os campos em amarelo ainda precisam ser preenchidos: instituição, curso, cidade e a última coluna do log de IA. Cada responsável deve revisar e reescrever o seu tópico da seção 6 do relatório, conforme a divisão abaixo, e depois exportar de novo o PDF pelo Word (Arquivo → Salvar como → PDF). Os prints do SWISH para o backup da demo estão em `docs/prints/`.
 
 | # | Etapa | Entregável | Prazo | Responsável |
 |---|---|---|---|---|
