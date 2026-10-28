@@ -209,8 +209,14 @@ ataca(L, D, L1) :- L1 =:= L - D.           % diagonal subindo
 todas_solucoes(N, Solucoes) :-
     findall(Qs, rainhas(N, Qs), Solucoes).
 
+% Para contar é preciso achar TODAS as soluções, e elas crescem rápido
+% demais (N = 20 já tem mais de 39 bilhões). Por isso o limite.
 contar_solucoes(N, Total) :-
-    aggregate_all(count, rainhas(N, _), Total).
+    (   N =< 12
+    ->  aggregate_all(count, rainhas(N, _), Total)
+    ;   format("⚠ contar_solucoes aceita N até 12: contar exige achar todas as soluções, e N = 20 já tem mais de 39 bilhões. Para N grande, use resolver(N).~n"),
+        fail
+    ).
 
 % valida(+Qs): confere uma solução de forma independente do algoritmo
 % que a gerou: uma rainha por linha (permutação de 1..N) e nenhuma
@@ -322,6 +328,11 @@ regra_css('.nr-cmd code{background:#efe4d2;padding:1px 6px;border-radius:4px;col
 regra_css('.nr-comp{border-collapse:collapse;margin:6px 0}').
 regra_css('.nr-comp td,.nr-comp th{border:1px solid #dcc9ab;padding:5px 12px;text-align:left}').
 regra_css('.nr-comp th{background:#efe4d2;color:#5b3a1e}').
+regra_css('.nr-grupo{font-family:Segoe UI,Helvetica,Arial,sans-serif;font-weight:700;color:#5b3a1e;margin:10px 0 2px}').
+regra_css('.nr-linha{font-family:Consolas,monospace;font-size:13px;color:#333;padding:1px 0 1px 14px}').
+regra_css('.nr-sim{color:#2e7d32;font-weight:700}').
+regra_css('.nr-nao{color:#c0392b;font-weight:700}').
+regra_css('.nr-tempo{color:#8a6d4b;font-size:12px}').
 
 % ==================================================================
 % 8. Comandos para o usuário
@@ -340,9 +351,10 @@ comando('resolver(100).',         'tabuleiros grandes também (testado de N = 1 
 comando('mostrar_todas(6).',      'todas as soluções lado a lado (N até 8)').
 comando('explicar(4).',           'o backtracking passo a passo (N até 6)').
 comando('comparar(20).',          'tempo da v1, v2 e v3 para o mesmo N').
-comando('contar_solucoes(8, T).', 'quantas soluções existem').
+comando('contar_solucoes(8, T).', 'quantas soluções existem (N até 12)').
 comando('rainhas(8, Qs).',        'a solução como lista (versão v3)').
 comando('imprimir_tabuleiro([2,4,1,3]).', 'desenho em texto de uma solução').
+comando('testar.',                'roda os testes automáticos, um por um').
 
 % resolver(+N): mostra uma solução desenhada. Cada Next pede ao Prolog
 % a próxima solução (backtracking). call_nth/2 numera as soluções e
@@ -526,8 +538,156 @@ no_maximo(N, Maximo, Comando) :-
         fail
     ).
 
+% ==================================================================
+% 9. Testes automáticos
+% ==================================================================
+% testar/0 roda a bateria de testes e mostra cada resultado assim que
+% ele sai. Cada teste é um fato (ou regra)
+%     teste(Grupo, Descricao, Caso, Esperado)
+% em que Caso é um termo que diz o que medir, por exemplo contagem(8).
+% resultado/2 tem uma cláusula para cada tipo de Caso e calcula o valor
+% obtido; o teste passa quando ele é igual ao Esperado.
+% (O SWISH não aceita call/1 com um objetivo montado em tempo de
+% execução, por segurança; daí os casos serem dados, e não objetivos.)
+testar :-
+    aggregate_all(count, teste(_, _, _, _), Total),
+    format(atom(Info),
+           '~w testes. Cada resultado é comparado com o valor esperado (✔ igual, ✗ diferente).',
+           [Total]),
+    cartao('Testes automáticos', [div(class('nr-info'), Info)]),
+    statistics(cputime, T0),
+    findall(Resultado,
+            ( grupo(Grupo, Titulo),
+              html(div(class('nr-grupo'), Titulo)),
+              teste(Grupo, Descricao, Caso, Esperado),
+              rodar_teste(Descricao, Caso, Esperado, Resultado) ),
+            Resultados),
+    statistics(cputime, T1),
+    Tempo is T1 - T0,
+    include(==(passou), Resultados, Passaram),
+    length(Passaram, P),
+    veredito_final(P, Total, Veredito),
+    format(atom(Rodape), 'Tempo total: ~2f s', [Tempo]),
+    cartao('Resultado dos testes', [Veredito, div(class('nr-info'), Rodape)]).
+
+rodar_teste(Descricao, Caso, Esperado, Resultado) :-
+    statistics(cputime, T0),
+    (   resultado(Caso, Obtido)
+    ->  true
+    ;   Obtido = falhou
+    ),
+    statistics(cputime, T1),
+    Tempo is T1 - T0,
+    (   Obtido == Esperado -> Resultado = passou ; Resultado = falhou ),
+    linha_do_teste(Resultado, Descricao, Obtido, Esperado, Tempo, Linha),
+    html(Linha).
+
+% linha_do_teste(+Resultado, +Descricao, +Obtido, +Esperado, +Tempo, -Html)
+% ~w transforma listas como [2,4,1,3] em texto (para o html/1, uma lista
+% seria uma sequência de elementos).
+linha_do_teste(passou, Descricao, Obtido, _, Tempo,
+               div(class('nr-linha'),
+                   [ span(class('nr-sim'), '✔ '), Descricao, ' → ', b(Texto),
+                     span(class('nr-tempo'), Duracao) ])) :-
+    format(atom(Texto), '~w', [Obtido]),
+    format(atom(Duracao), ' · ~3f s', [Tempo]).
+linha_do_teste(falhou, Descricao, Obtido, Esperado, Tempo,
+               div(class('nr-linha'),
+                   [ span(class('nr-nao'), '✗ '), Descricao, ' → ', b(Texto),
+                     span(class('nr-nao'), Diferenca),
+                     span(class('nr-tempo'), Duracao) ])) :-
+    format(atom(Texto), '~w', [Obtido]),
+    format(atom(Diferenca), ' (esperado: ~w)', [Esperado]),
+    format(atom(Duracao), ' · ~3f s', [Tempo]).
+
+veredito_final(Total, Total, div(class('nr-ok'), Texto)) :-
+    !,
+    format(atom(Texto), '✔ Todos os ~w testes passaram.', [Total]).
+veredito_final(Passaram, Total, div(class('nr-erro'), Texto)) :-
+    Falharam is Total - Passaram,
+    format(atom(Texto), '✗ ~w de ~w testes falharam.', [Falharam, Total]).
+
+% --- Os testes --------------------------------------------------------
+grupo(1, '1. O conferidor valida/1 reconhece tabuleiros errados').
+grupo(2, '2. Total de soluções igual ao conhecido (N = 1 a 10)').
+grupo(3, '3. As três versões chegam ao mesmo total').
+grupo(4, '4. As respostas do Next: válidas e sem repetição').
+grupo(5, '5. Tabuleiros grandes (v3)').
+grupo(6, '6. Mesma 1ª solução das versões em C e Java').
+
+teste(1, Descricao, conferir(Qs), Esperado) :-
+    tabuleiro_de_teste(Qs, Motivo, Esperado),
+    format(atom(Descricao), 'valida(~w), ~w', [Qs, Motivo]).
+teste(2, Descricao, contagem(N), Esperado) :-
+    solucoes_conhecidas(N, Esperado),
+    format(atom(Descricao), 'contar_solucoes(~w, T)', [N]).
+teste(3, Descricao, versoes(N), [T, T, T]) :-
+    member(N, [4, 6, 8]),
+    solucoes_conhecidas(N, T),
+    format(atom(Descricao), 'totais da v1, v2 e v3 para N = ~w', [N]).
+teste(4, 'soluções de rainhas(8, Qs) reprovadas por valida/1', reprovadas(8), 0).
+teste(4, 'soluções repetidas entre as respostas de rainhas(8, Qs)', repetidas(8), 0).
+teste(5, Descricao, primeira_conferida(N), aceita) :-
+    member(N, [20, 50, 100, 200]),
+    format(atom(Descricao), 'valida/1 na 1ª solução de rainhas(~w, Qs)', [N]).
+teste(6, Descricao, primeira_v2(N), Esperado) :-
+    saida_do_c_e_do_java(N, Esperado),
+    format(atom(Descricao), '1ª solução de rainhas_v2(~w, Qs)', [N]).
+
+% resultado(+Caso, -Obtido): o que o programa responde em cada caso.
+resultado(conferir(Qs), Veredito) :-
+    veredito(Qs, Veredito).
+resultado(contagem(N), Total) :-
+    contar_solucoes(N, Total).
+resultado(versoes(N), Totais) :-
+    maplist(total_da_versao(N), [v1, v2, v3], Totais).
+resultado(reprovadas(N), Total) :-
+    todas_solucoes(N, Todas),
+    exclude(valida, Todas, Erradas),
+    length(Erradas, Total).
+resultado(repetidas(N), Total) :-
+    todas_solucoes(N, Todas),
+    sort(Todas, Diferentes),
+    length(Todas, T),
+    length(Diferentes, D),
+    Total is T - D.
+resultado(primeira_conferida(N), Veredito) :-
+    once(rainhas(N, Qs)),
+    veredito(Qs, Veredito).
+resultado(primeira_v2(N), Qs) :-
+    once(rainhas_v2(N, Qs)).
+
+tabuleiro_de_teste([2,4,1,3], 'solução correta',         aceita).
+tabuleiro_de_teste([1,2,3,4], 'todas na mesma diagonal', rejeita).
+tabuleiro_de_teste([2,4,1,1], 'duas na mesma linha',     rejeita).
+
+% Total de soluções de cada N (sequência A000170 da OEIS).
+solucoes_conhecidas(1, 1).
+solucoes_conhecidas(2, 0).
+solucoes_conhecidas(3, 0).
+solucoes_conhecidas(4, 2).
+solucoes_conhecidas(5, 10).
+solucoes_conhecidas(6, 4).
+solucoes_conhecidas(7, 40).
+solucoes_conhecidas(8, 92).
+solucoes_conhecidas(9, 352).
+solucoes_conhecidas(10, 724).
+
+% O que comparacao/nrainhas.c e comparacao/NRainhas.java imprimem.
+saida_do_c_e_do_java(4, [2,4,1,3]).
+saida_do_c_e_do_java(8, [1,5,8,6,3,7,2,4]).
+
+veredito(Qs, aceita) :-
+    valida(Qs),
+    !.
+veredito(_, rejeita).
+
+total_da_versao(N, Versao, Total) :-
+    aggregate_all(count, executar(Versao, N, _), Total).
+
 /** <examples>
 ?- ajuda.
+?- testar.
 ?- resolver(8).
 ?- resolver(100).
 ?- mostrar_todas(6).
