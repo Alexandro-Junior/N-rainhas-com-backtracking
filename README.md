@@ -23,6 +23,8 @@
 * **Ambiente Online Utilizado:** SWISH (swish.swi-prolog.org)
 * **Permalink:** https://swish.swi-prolog.org/p/nrainhas-grupo04.pl
 
+> Se o SWISH mostrar "Erro do Servidor Interno", é uma falha momentânea do servidor deles: recarregue a página. Se continuar, abra https://swish.swi-prolog.org, clique em **Program**, cole o código de https://raw.githubusercontent.com/Alexandro-Junior/N-rainhas-com-backtracking/main/src/nrainhas.pl e rode as mesmas consultas.
+
 ### Instruções de Teste (Entrada e Saída)
 
 1. Abra o permalink acima. Não precisa de login nem de instalação.
@@ -178,15 +180,47 @@ Cada solução exibida é conferida de forma independente por `valida/1`: uma ra
 - As três versões dão o mesmo número de soluções de N = 1 a 9: 1, 0, 0, 2, 10, 4, 40, 92 e 352. A v3 também acerta N = 10 (724) e N = 11 (2680).
 - A v3 achou uma solução válida para **todo N de 1 a 250** (N = 2 e N = 3 não têm solução). Tempo médio de 1,3 s, pior caso 5,6 s (N = 248). Também foram testados N = 300 (9,4 s) e N = 400 (24,5 s).
 
-**Versões em C e Java** (pasta [`comparacao/`](comparacao/)): o mesmo algoritmo da v2, com o backtracking implementado manualmente, para a análise comparativa.
+**Versões em C e Java, para a comparação.** O mesmo algoritmo da v2 foi reescrito em C (paradigma imperativo) e em Java (orientação a objetos). Nelas, o backtracking é feito à mão: vetores marcam as linhas e diagonais ocupadas, um laço `for` tenta cada linha, e depois de cada tentativa é preciso desmarcar a casa. Compiladas com `gcc 16.2 -O2 -Wall -Wextra` e `javac 21 -Xlint:all`, sem nenhum aviso. Elas dão os mesmos totais da v2 (N = 1, 2, 3, 4, 8, 12 → 1, 0, 0, 2, 92, 14200) e a mesma primeira solução (N = 8 → `[1,5,8,6,3,7,2,4]`).
 
 ### Análise Comparativa
 
-A comparação usa o mesmo algoritmo da v2 reescrito em C e Java (pasta [`comparacao/`](comparacao/)). As três versões dão o mesmo total de soluções e a mesma primeira solução, então as diferenças vêm do paradigma, e não do algoritmo.
+A comparação usa o mesmo algoritmo da v2 em Prolog, C e Java. Como as três versões dão os mesmos resultados, as diferenças vêm do paradigma, e não do algoritmo.
 
 #### 1. Sintaxe
 
-Em Prolog, o programa é uma sequência de cláusulas `Cabeça :- Corpo`. Não há declaração de tipos, chaves, atribuição nem laços: a vírgula significa "e", e a repetição é feita por recursão. Cada caso é uma cláusula escolhida por casamento de padrões: `nao_ataca(_, [], _)` trata a lista vazia, e `nao_ataca(Q, [Q1|Qs], D)` separa a primeira rainha do resto. O núcleo da v2 tem **15 linhas em Prolog, 45 em C e 39 em Java**. As outras duas precisam de vetores de marcação, índices e funções para marcar e desmarcar casas.
+Em Prolog, o programa é uma sequência de cláusulas `Cabeça :- Corpo`. Não há declaração de tipos, chaves, atribuição nem laços: a vírgula significa "e", e a repetição é feita por recursão. Cada caso é uma cláusula escolhida por casamento de padrões: `nao_ataca(_, [], _)` trata a lista vazia, e `nao_ataca(Q, [Q1|Qs], D)` separa a primeira rainha do resto.
+
+O mesmo passo da busca nas duas linguagens:
+
+```prolog
+% Prolog: o que é posicionar as rainhas
+posicionar([], Colocadas, Qs) :-
+    reverse(Colocadas, Qs).
+posicionar(Livres, Colocadas, Qs) :-
+    select(Q, Livres, Resto),          % ponto de escolha
+    nao_ataca(Q, Colocadas, 1),        % falhou? o Prolog volta ao select
+    posicionar(Resto, [Q|Colocadas], Qs).
+```
+
+```c
+/* C: como procurar, passo a passo */
+static bool posicionar(Tabuleiro *t, int c) {
+    if (c == t->n)
+        return true;
+    for (int l = 0; l < t->n; l++) {
+        if (livre(t, l, c)) {
+            t->linha[c] = l;
+            marcar(t, l, c, true);              /* tenta                */
+            if (posicionar(t, c + 1))
+                return true;
+            marcar(t, l, c, false);             /* desfaz: backtracking */
+        }
+    }
+    return false;
+}
+```
+
+O Prolog descreve **o que** é uma solução; o C descreve **como** procurá-la (índice, laço, marcar, desmarcar, `return`). O Java tem a mesma estrutura do C, só que em métodos de uma classe com atributos `private`. Sem contar comentários, o núcleo da v2 tem **15 linhas em Prolog, 45 em C e 39 em Java**.
 
 #### 2. Semântica
 
@@ -204,7 +238,17 @@ Em Prolog, o programa é uma sequência de cláusulas `Cabeça :- Corpo`. Não h
 
 #### 4. Trade-offs
 
-Com o mesmo algoritmo, C e Java são cerca de 100 vezes mais rápidos. Para N = 28, levam 0,30 s (C) e 0,34 s (Java), contra 49,5 s do Prolog v2. Mas nas três linguagens o tempo cresce de forma exponencial: o C não terminou N = 100 em 60 s, e a v3 em Prolog resolve N = 100 em 0,3 s. Quem resolve N grande é o algoritmo, e a v3 só foi simples de escrever porque o Prolog restaura os domínios ao retroceder.
+Tempo até a primeira solução (C e Java num computador pessoal; Prolog no SWISH, então a comparação é aproximada):
+
+| N | C (v2) | Java (v2) | Prolog v2 | Prolog v3 |
+|---|---|---|---|---|
+| 20 | 0,017 s | 0,028 s | 1,6 s | 0,003 s |
+| 24 | 0,035 s | 0,055 s | 5,4 s | não medido |
+| 28 | 0,30 s | 0,34 s | 49,5 s | 0,003 s |
+| 32 | 9,3 s | não medido | não medido | não medido |
+| 100 | mais de 60 s (interrompido) | não medido | não medido | 0,3 s |
+
+Com o mesmo algoritmo, C e Java são cerca de 100 vezes mais rápidos, porque usam vetores mutáveis e acesso direto à memória. Mas nas três linguagens o tempo cresce de forma exponencial: o C não terminou N = 100 em 60 s, e a v3 em Prolog resolve N = 100 em 0,3 s. Quem resolve N grande é o algoritmo, e a v3 só foi simples de escrever porque o Prolog restaura os domínios ao retroceder.
 
 - **Vantagens do Prolog:** backtracking nativo, sem código para desfazer jogadas; código curto e próximo da definição do problema; todas as soluções sem esforço extra; predicados que geram e conferem.
 - **Desvantagens:** desempenho e consumo de memória; eficiência dependente da ordem dos objetivos (`contar_solucoes(50, T)` não terminaria); depuração mais difícil; erros de tipo só na execução; pouco controle de baixo nível.
@@ -220,7 +264,13 @@ O detalhamento completo está no relatório [`Paradigma04.pdf`](Paradigma04.pdf)
 
 ## Log de Uso de Inteligência Artificial (IA)
 
-O registro detalhado, com data, está em [`log-ia.md`](log-ia.md).
+| Data | O que foi pedido | O que foi aproveitado |
+|---|---|---|
+| 13/10/2026 | Analisar o enunciado e montar o plano do projeto | Plano de etapas e estrutura deste README |
+| 13/10/2026 | Escrever o código Prolog (gerar e testar; com poda) e testá-lo no SWISH | `nao_ataca/3`, `segura/1`, `rainhas_v1/2`, `rainhas_v2/2`, `tabuleiro/2`, `contar_solucoes/2` |
+| 27/10/2026 | Resolver N grande sem sair do estilo do Prolog; desenhar o tabuleiro; escrever as versões em C e Java | v3 (`rainhas_v3/2`), tabuleiro gráfico com `html/1`, comandos `ajuda`, `resolver`, `mostrar_todas`, `explicar`, `comparar`; versões em C e Java |
+| 27/10/2026 | Mostrar no SWISH os testes sendo executados | Comando `testar` (24 testes) e limite de N ≤ 12 em `contar_solucoes/2` |
+| 27/10/2026 | Rascunho do relatório ABNT e prints do SWISH | Texto-base do relatório `Paradigma04.pdf` e figuras |
 
 * **O que foi pedido à IA:** análise do enunciado e plano do projeto; escrita do código Prolog em três versões (gerar e testar, poda, verificação adiante) e da apresentação visual no SWISH; versões em C e Java para a comparação; testes de N=1 a 200; comando `testar`; rascunho do relatório `Paradigma04.pdf` e prints do SWISH.
 * **Qual IA foi utilizada:** Anthropic Claude Opus 5.5 (Claude Code).
