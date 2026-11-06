@@ -269,14 +269,15 @@ O detalhamento completo está no relatório [`Paradigma04.pdf`](Paradigma04.pdf)
 | Data | O que foi pedido | O que foi aproveitado |
 |---|---|---|
 | 13/10/2026 | Analisar o enunciado e montar o plano do projeto | Plano de etapas e estrutura deste README |
-| 13/10/2026 | Escrever o código Prolog (gerar e testar; com poda) e testá-lo no SWISH | `nao_ataca/3`, `segura/1`, `rainhas_v1/2`, `rainhas_v2/2`, `tabuleiro/2`, `contar_solucoes/2` |
+| 13/10/2026 | (Alexandro, com Victor) Escrever o código Prolog (gerar e testar; com poda) e testá-lo no SWISH | `nao_ataca/3`, `segura/1`, `rainhas_v1/2`, `rainhas_v2/2`, `tabuleiro/2`, `contar_solucoes/2` |
 | 27/10/2026 | Resolver N grande sem sair do estilo do Prolog; desenhar o tabuleiro; escrever as versões em C e Java | v3 (`rainhas_v3/2`), tabuleiro gráfico com `html/1`, comandos `ajuda`, `resolver`, `mostrar_todas`, `explicar`, `comparar`; versões em C e Java |
 | 27/10/2026 | Mostrar no SWISH os testes sendo executados | Comando `testar` (24 testes) e limite de N ≤ 12 em `contar_solucoes/2` |
 | 27/10/2026 | Rascunho do relatório ABNT e prints do SWISH | Texto-base do relatório `Paradigma04.pdf` e figuras |
+| [data] | (Caique) Tirar dúvidas e construir partes do código em Java, seguindo a mesma ideia do código Prolog | Partes de `comparacao/NRainhas.java` |
 | 04/11/2026 | (Duquesnio) Auxílio na construção da versão em C da v3, adaptada do programa Prolog | Estrutura de `comparacao/nrainhas_v3.c`: domínios por coluna, coluna mais restrita primeiro, cópia dos domínios a cada ramo |
 | 05/11/2026 | Revisar o código em C da v3 | Correção da validação final (a busca apagava a solução antes de ela ser conferida), tabuleiro desenhado com moldura e recomeço com teto de esforço (alguns N, como 108 e 122, travavam) |
 
 * **O que foi pedido à IA:** análise do enunciado e plano do projeto; escrita do código Prolog em três versões (gerar e testar, poda, verificação adiante) e da apresentação visual no SWISH; versões em C e Java para a comparação; testes de N=1 a 200; comando `testar`; rascunho do relatório `Paradigma04.pdf` e prints do SWISH.
-* **Qual IA foi utilizada:** Anthropic Claude Opus 5.5 (Claude Code). Na v3 em C do Duquesnio: ChatGPT (OpenAI).
+* **Qual IA foi utilizada:** Anthropic Claude Opus 5.5 (Claude Code). No código em Java (Caique) e na v3 em C (Duquesnio): ChatGPT (OpenAI).
 * **O que foi aproveitado:** `src/nrainhas.pl`, `comparacao/nrainhas.c`, `comparacao/NRainhas.java`, o `PLANO.md`, a estrutura deste README, o texto-base do relatório e as figuras de `docs/prints/`.
 * **O que foi reescrito/entendido pelo grupo:** _[A preencher pelo grupo]_
