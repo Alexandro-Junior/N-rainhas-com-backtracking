@@ -23,7 +23,9 @@
 * **Ambiente Online Utilizado:** SWISH (swish.swi-prolog.org)
 * **Permalink:** https://swish.swi-prolog.org/p/nrainhas-grupo04.pl
 
-> Se o SWISH mostrar "Erro do Servidor Interno", é uma falha momentânea do servidor deles: recarregue a página. Se continuar, abra https://swish.swi-prolog.org, clique em **Program**, cole o código de https://raw.githubusercontent.com/Alexandro-Junior/N-rainhas-com-backtracking/main/src/nrainhas.pl e rode as mesmas consultas.
+* **Permalink alternativo** (abre o SWISH já com o código, carregado direto deste repositório): https://swish.swi-prolog.org/?code=https://raw.githubusercontent.com/Alexandro-Junior/N-rainhas-com-backtracking/main/src/nrainhas.pl
+
+> Em algumas redes, o SWISH pode responder ao primeiro link com "Erro do Servidor Interno" (`web_storage`). É uma falha do armazenamento de arquivos do servidor deles, não do código. Nesse caso, use o permalink alternativo: ele roda exatamente o mesmo programa e não depende desse armazenamento.
 
 ### Instruções de Teste (Entrada e Saída)
 

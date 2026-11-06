@@ -60,7 +60,7 @@
 5. `comparar(20).` mostra a v2 com cerca de 1,6 s e a v3 com cerca de 0,003 s.
 6. `testar.` roda os 24 testes; cada linha aparece quando o teste termina.
 
-Se o SWISH mostrar "Erro do Servidor Interno", recarregue a página. Se a internet falhar, use os prints de `docs/prints/`.
+Se o SWISH mostrar "Erro do Servidor Interno", use o **permalink alternativo**, que carrega o código direto do GitHub: https://swish.swi-prolog.org/?code=https://raw.githubusercontent.com/Alexandro-Junior/N-rainhas-com-backtracking/main/src/nrainhas.pl. Deixe os dois links abertos antes de começar. Se a internet falhar, use os prints de `docs/prints/`.
 
 **Versão em C:** é o mesmo algoritmo da v2, mas o backtracking é feito à mão. Vetores marcam linhas e diagonais ocupadas; um `for` tenta cada linha; depois de cada tentativa, `marcar(..., false)` desfaz a jogada. A memória é alocada com `malloc`/`calloc` e liberada com `free`.
 
