@@ -64,6 +64,8 @@ Se o SWISH mostrar "Erro do Servidor Interno", recarregue a página. Se a intern
 
 **Versão em C:** é o mesmo algoritmo da v2, mas o backtracking é feito à mão. Vetores marcam linhas e diagonais ocupadas; um `for` tenta cada linha; depois de cada tentativa, `marcar(..., false)` desfaz a jogada. A memória é alocada com `malloc`/`calloc` e liberada com `free`.
 
+**Sua v3 em C (`comparacao/nrainhas_v3.c`):** é a mesma verificação adiante da v3 em Prolog. Cada coluna tem um vetor de linhas possíveis, escolhe-se a coluna mais restrita, e cada ramo recebe uma **cópia** dos domínios (`malloc` + `memcpy` + `free`). Essa cópia é o "desfazer" feito à mão; em Prolog ele é automático. Ela resolve N = 400 em 0,05 s, contra 24,5 s no Prolog. Na revisão foram corrigidos três pontos: a validação final conferia a solução depois de ela ser apagada; o tabuleiro ganhou moldura; e alguns N (108, 122, 180…) travavam, o que foi resolvido com recomeço por teto de esforço, igual à v3 em Prolog.
+
 **Perguntas prováveis**
 - *A solução muda se rodar de novo?* Não. Para o mesmo N, a primeira solução é sempre a mesma; as outras aparecem com Next.
 - *Por que os testes são fatos?* Por segurança, o SWISH não deixa chamar com `call/1` um objetivo montado durante a execução. Então cada teste é um dado (`contagem(8)`), e `resultado/2` tem uma cláusula para cada tipo.

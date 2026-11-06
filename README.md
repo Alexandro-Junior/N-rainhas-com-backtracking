@@ -182,6 +182,8 @@ Cada solução exibida é conferida de forma independente por `valida/1`: uma ra
 
 **Versões em C e Java, para a comparação.** O mesmo algoritmo da v2 foi reescrito em C (paradigma imperativo) e em Java (orientação a objetos). Nelas, o backtracking é feito à mão: vetores marcam as linhas e diagonais ocupadas, um laço `for` tenta cada linha, e depois de cada tentativa é preciso desmarcar a casa. Compiladas com `gcc 16.2 -O2 -Wall -Wextra` e `javac 21 -Xlint:all`, sem nenhum aviso. Elas dão os mesmos totais da v2 (N = 1, 2, 3, 4, 8, 12 → 1, 0, 0, 2, 92, 14200) e a mesma primeira solução (N = 8 → `[1,5,8,6,3,7,2,4]`).
 
+Também há uma **v3 em C** (`comparacao/nrainhas_v3.c`, escrita pelo Duquesnio com auxílio de IA), com a mesma verificação adiante da v3 em Prolog: domínios por coluna, a coluna mais restrita primeiro, linhas do centro para as bordas e recomeço com teto de esforço. Ela acerta os totais (N = 8 → 92, N = 10 → 724, N = 11 → 2680) e resolveu todo N de 1 a 400 com solução válida. A diferença que mais importa: **em C, desfazer a jogada exige copiar os domínios a cada ramo** (`malloc` + `memcpy` + `free`); em Prolog, o retrocesso restaura os domínios sozinho.
+
 ### Análise Comparativa
 
 A comparação usa o mesmo algoritmo da v2 em Prolog, C e Java. Como as três versões dão os mesmos resultados, as diferenças vêm do paradigma, e não do algoritmo.
@@ -240,15 +242,15 @@ O Prolog descreve **o que** é uma solução; o C descreve **como** procurá-la 
 
 Tempo até a primeira solução (C e Java num computador pessoal; Prolog no SWISH, então a comparação é aproximada):
 
-| N | C (v2) | Java (v2) | Prolog v2 | Prolog v3 |
-|---|---|---|---|---|
-| 20 | 0,017 s | 0,028 s | 1,6 s | 0,003 s |
-| 24 | 0,035 s | 0,055 s | 5,4 s | não medido |
-| 28 | 0,30 s | 0,34 s | 49,5 s | 0,003 s |
-| 32 | 9,3 s | não medido | não medido | não medido |
-| 100 | mais de 60 s (interrompido) | não medido | não medido | 0,3 s |
+| N | C (v2) | Java (v2) | Prolog v2 | C (v3) | Prolog v3 |
+|---|---|---|---|---|---|
+| 20 | 0,017 s | 0,028 s | 1,6 s | < 0,001 s | 0,003 s |
+| 28 | 0,30 s | 0,34 s | 49,5 s | < 0,001 s | 0,003 s |
+| 32 | 9,3 s | não medido | não medido | < 0,001 s | não medido |
+| 100 | mais de 60 s (interrompido) | não medido | não medido | < 0,001 s | 0,3 s |
+| 400 | não medido | não medido | não medido | 0,05 s | 24,5 s |
 
-Com o mesmo algoritmo, C e Java são cerca de 100 vezes mais rápidos, porque usam vetores mutáveis e acesso direto à memória. Mas nas três linguagens o tempo cresce de forma exponencial: o C não terminou N = 100 em 60 s, e a v3 em Prolog resolve N = 100 em 0,3 s. Quem resolve N grande é o algoritmo, e a v3 só foi simples de escrever porque o Prolog restaura os domínios ao retroceder.
+Com o mesmo algoritmo, C e Java são cerca de 100 vezes mais rápidos (na v3, o C chega a ser centenas de vezes mais rápido), porque usam vetores mutáveis e acesso direto à memória. Mas nas três linguagens o tempo cresce de forma exponencial: o C não terminou N = 100 em 60 s, e a v3 em Prolog resolve N = 100 em 0,3 s. Quem resolve N grande é o algoritmo, e a v3 só foi simples de escrever porque o Prolog restaura os domínios ao retroceder.
 
 - **Vantagens do Prolog:** backtracking nativo, sem código para desfazer jogadas; código curto e próximo da definição do problema; todas as soluções sem esforço extra; predicados que geram e conferem.
 - **Desvantagens:** desempenho e consumo de memória; eficiência dependente da ordem dos objetivos (`contar_solucoes(50, T)` não terminaria); depuração mais difícil; erros de tipo só na execução; pouco controle de baixo nível.
@@ -271,8 +273,10 @@ O detalhamento completo está no relatório [`Paradigma04.pdf`](Paradigma04.pdf)
 | 27/10/2026 | Resolver N grande sem sair do estilo do Prolog; desenhar o tabuleiro; escrever as versões em C e Java | v3 (`rainhas_v3/2`), tabuleiro gráfico com `html/1`, comandos `ajuda`, `resolver`, `mostrar_todas`, `explicar`, `comparar`; versões em C e Java |
 | 27/10/2026 | Mostrar no SWISH os testes sendo executados | Comando `testar` (24 testes) e limite de N ≤ 12 em `contar_solucoes/2` |
 | 27/10/2026 | Rascunho do relatório ABNT e prints do SWISH | Texto-base do relatório `Paradigma04.pdf` e figuras |
+| 04/11/2026 | (Duquesnio) Auxílio na construção da versão em C da v3, adaptada do programa Prolog | Estrutura de `comparacao/nrainhas_v3.c`: domínios por coluna, coluna mais restrita primeiro, cópia dos domínios a cada ramo |
+| 05/11/2026 | Revisar o código em C da v3 | Correção da validação final (a busca apagava a solução antes de ela ser conferida), tabuleiro desenhado com moldura e recomeço com teto de esforço (alguns N, como 108 e 122, travavam) |
 
 * **O que foi pedido à IA:** análise do enunciado e plano do projeto; escrita do código Prolog em três versões (gerar e testar, poda, verificação adiante) e da apresentação visual no SWISH; versões em C e Java para a comparação; testes de N=1 a 200; comando `testar`; rascunho do relatório `Paradigma04.pdf` e prints do SWISH.
-* **Qual IA foi utilizada:** Anthropic Claude Opus 5.5 (Claude Code).
+* **Qual IA foi utilizada:** Anthropic Claude Opus 5.5 (Claude Code). Na v3 em C do Duquesnio: [nome e versão da IA usada por ele].
 * **O que foi aproveitado:** `src/nrainhas.pl`, `comparacao/nrainhas.c`, `comparacao/NRainhas.java`, o `PLANO.md`, a estrutura deste README, o texto-base do relatório e as figuras de `docs/prints/`.
 * **O que foi reescrito/entendido pelo grupo:** _[A preencher pelo grupo]_
