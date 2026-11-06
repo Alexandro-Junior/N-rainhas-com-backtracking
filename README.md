@@ -175,7 +175,7 @@ Nas três, **não há pilha, laço nem "desfazer jogada" escritos à mão**. Qua
 
 Cada solução exibida é conferida de forma independente por `valida/1`: uma rainha por linha e nenhuma diagonal repetida.
 
-**Testes (no SWISH, em 27/10/2026):**
+**Testes (no SWISH, em 27/10/2026; refeitos em 05/11/2026 com as versões finais do Prolog, do C e do Java, todos aprovados):**
 - O comando `testar.` roda **24 testes automáticos** direto no SWISH e mostra cada resultado assim que ele sai. Ele confere o próprio conferidor (`valida/1`), o total de soluções de N = 1 a 10, que as três versões concordam, que as respostas do **Next** são válidas e não se repetem, tabuleiros de 20 a 200 rainhas e a mesma 1ª solução das versões em C e Java. Os testes são uma base de fatos (`teste/4`), e `resultado/2` calcula o valor obtido em cada caso.
 - As três versões dão o mesmo número de soluções de N = 1 a 9: 1, 0, 0, 2, 10, 4, 40, 92 e 352. A v3 também acerta N = 10 (724) e N = 11 (2680).
 - A v3 achou uma solução válida para **todo N de 1 a 250** (N = 2 e N = 3 não têm solução). Tempo médio de 1,3 s, pior caso 5,6 s (N = 248). Também foram testados N = 300 (9,4 s) e N = 400 (24,5 s).
