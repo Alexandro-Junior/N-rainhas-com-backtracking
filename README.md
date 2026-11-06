@@ -277,6 +277,6 @@ O detalhamento completo está no relatório [`Paradigma04.pdf`](Paradigma04.pdf)
 | 05/11/2026 | Revisar o código em C da v3 | Correção da validação final (a busca apagava a solução antes de ela ser conferida), tabuleiro desenhado com moldura e recomeço com teto de esforço (alguns N, como 108 e 122, travavam) |
 
 * **O que foi pedido à IA:** análise do enunciado e plano do projeto; escrita do código Prolog em três versões (gerar e testar, poda, verificação adiante) e da apresentação visual no SWISH; versões em C e Java para a comparação; testes de N=1 a 200; comando `testar`; rascunho do relatório `Paradigma04.pdf` e prints do SWISH.
-* **Qual IA foi utilizada:** Anthropic Claude Opus 5.5 (Claude Code). Na v3 em C do Duquesnio: [nome e versão da IA usada por ele].
+* **Qual IA foi utilizada:** Anthropic Claude Opus 5.5 (Claude Code). Na v3 em C do Duquesnio: ChatGPT (OpenAI).
 * **O que foi aproveitado:** `src/nrainhas.pl`, `comparacao/nrainhas.c`, `comparacao/NRainhas.java`, o `PLANO.md`, a estrutura deste README, o texto-base do relatório e as figuras de `docs/prints/`.
 * **O que foi reescrito/entendido pelo grupo:** _[A preencher pelo grupo]_
