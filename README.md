@@ -6,7 +6,7 @@
 
 * Alexandro de Araujo Junior (34625127)
 * Caique dos Santos Alves (39165566)
-* uquesnio Daniel Bandessa (33856885)
+* Duquesnio Daniel Bandessa (33856885)
 * Victor Alves Souza dos Santos (34696466)
 
 ## Definição do Tema
