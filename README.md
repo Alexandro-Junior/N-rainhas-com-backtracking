@@ -5,7 +5,7 @@
 ### 👥 Integrantes (3 a 5 alunos)
 
 * Alexandro de Araujo Junior (34625127)
-* Caique dos Santos Alves (39165566)
+* aique dos Santos Alves (39165566)
 * Duquesnio Daniel Bandessa (33856885)
 * Victor Alves Souza dos Santos (34696466)
 
